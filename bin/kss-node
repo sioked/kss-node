@@ -3,7 +3,7 @@
 var kss = require(__dirname + '/../lib/kss.js'),
 	preCompiler = kss.precompilers,
 	handlebars = require('handlebars'),
-	cleanCss = require('clean-css'),
+	CleanCss = require('clean-css'),
 	optimist = require('optimist'),
 	marked = require('marked'),
 	wrench = require('wrench'),
@@ -61,9 +61,6 @@ argv = require('optimist')
 	.string('m')
 	.alias('m', 'mask')
 	.describe('m', 'Use a custom mask for detecting stylesheets, e.g. "*.css"')
-
-	.alias('i', 'init')
-	.describe('i', 'Create a new styleguide template to work from')
 
 	.alias('i', 'init')
 	.describe('i', 'Create a new styleguide template to work from')
@@ -128,7 +125,7 @@ process.nextTick(function() {
 			throw err;
 		}
 
-		css = cleanCss.process(css);
+		css = new CleanCss().minify(css);
 
 		// Write the compiled LESS styles from the template.
 		fs.writeFileSync(options.destinationDirectory + '/public/kss.css', css, 'utf8');
@@ -158,7 +155,7 @@ process.nextTick(function() {
 			// Accumulate all of the sections' first indexes
 			// in case they don't have a root element.
 			for (i = 0; i < sectionCount; i += 1) {
-				currentRoot = sections[i].reference().match(/[0-9]*\.?/)[0].replace('.', '');
+				currentRoot = sections[i].reference().match(/[\w]*\.?/)[0].replace('.', '');
 
 				if (!~sectionRoots.indexOf(currentRoot)) {
 					sectionRoots.push(currentRoot);
@@ -192,7 +189,7 @@ generateStylesheet = function(argv) {
 
 	console.log('...compiling additional stylesheets');
 
-	files = [ false, 'less', 'stylus', 'sass', 'css' ].map(function (type) {
+	files = [ false, 'less', 'stylus', 'sass', 'scss', 'css' ].map(function (type) {
 		var key = type || 'style';
 
 		if (!argv[key]) return;
@@ -241,7 +238,7 @@ generateStylesheet = function(argv) {
 // Used by generateStylesheet to minify and then
 // save its final buffer to a single CSS file.
 saveStylesheet = function(buffer) {
-	buffer = cleanCss.process(buffer.toString());
+	buffer = new CleanCss().minify(buffer.toString());
 	fs.writeFileSync(
 		options.destinationDirectory + '/public/style.css',
 		buffer, 'utf8'
@@ -317,9 +314,9 @@ jsonModifiers = function(modifiers) {
 /**
  * Equivalent to the {#if} block helper with multiple arguments.
  */
-handlebars.registerHelper('ifAny', function() {
+handlebars.registerHelper('ifAny', function(options) {
 	var argLength = arguments.length - 2,
-		content = arguments[argLength + 1],
+		options = arguments[argLength + 1],
 		success = true;
 
 	for (var i = 0; i < argLength; i += 1) {
@@ -329,7 +326,7 @@ handlebars.registerHelper('ifAny', function() {
 		}
 	}
 
-	return success ? content(this) : content.inverse(this);
+	return success ? options.fn(this) : options.inverse(this);
 });
 
 /**
@@ -348,7 +345,7 @@ handlebars.registerHelper('section', function(reference) {
  * a query for all children and descendants of that reference.
  * @param  {Mixed} query The section query
  */
-handlebars.registerHelper('eachSection', function(query) {
+handlebars.registerHelper('eachSection', function(query, options) {
 	var sections,
 		i, l, buffer = "";
 
@@ -360,7 +357,7 @@ handlebars.registerHelper('eachSection', function(query) {
 
 	l = sections.length;
 	for (i = 0; i < l; i += 1) {
-		buffer += arguments[arguments.length-1](sections[i].data);
+		buffer += options.fn(sections[i].data);
 	}
 
 	return buffer;
@@ -369,7 +366,7 @@ handlebars.registerHelper('eachSection', function(query) {
 /**
  * Loop over each section root, i.e. each section only one level deep.
  */
-handlebars.registerHelper('eachRoot', function() {
+handlebars.registerHelper('eachRoot', function(options) {
 	var sections,
 		i, l, buffer = "";
 
@@ -378,7 +375,7 @@ handlebars.registerHelper('eachRoot', function() {
 
 	l = sections.length;
 	for (i = 0; i < l; i += 1) {
-		buffer += arguments[arguments.length-1](sections[i].data);
+		buffer += options.fn(sections[i].data);
 	}
 
 	return buffer;
@@ -393,15 +390,15 @@ handlebars.registerHelper('eachRoot', function() {
  * 	 ANYTHING ELSE
  * {{/refDepth}}
  */
-handlebars.registerHelper('whenDepth', function(depth, context) {
-	if (!(context && this.refDepth)) {
+handlebars.registerHelper('whenDepth', function(depth, options) {
+	if (!(options && this.refDepth)) {
 		return '';
 	}
 	if (depth == this.refDepth) {
-		return context(this);
+		return options.fn(this);
 	}
-	if (context.inverse) {
-		return context.inverse(this);
+	if (options.inverse) {
+		return options.inverse(this);
 	}
 });
 

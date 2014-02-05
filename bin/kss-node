@@ -67,6 +67,7 @@ argv = require('optimist')
 
 	.argv;
 
+
 // Create a new styleguide template to play with using the `--init` tag.
 if (argv.init) {
 	if (typeof argv.init !== 'string') {
@@ -203,7 +204,6 @@ generateStylesheet = function(argv) {
 	async.reduce(files, [], function (combined, group, next) {
 		if (!group) return next(null, combined)
 
-
 		async.map(group.files, function (filename, next) {
 			var type = group.type
 			  , extension
@@ -221,7 +221,7 @@ generateStylesheet = function(argv) {
 			console.log(' - ' + filename + ' (' + type + ')')
 
 			if (type === 'css') return next(null, fs.readFileSync(filename, 'utf8'))
-			compilers[type].render(filename, next)
+			compilers[type].render(filename, next, argv)
 
 		}, function(err, output) {
 			if (err) return next(err)

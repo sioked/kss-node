@@ -314,11 +314,11 @@ jsonModifiers = function(modifiers) {
 /**
  * Equivalent to the {#if} block helper with multiple arguments.
  */
-handlebars.registerHelper('ifAny', function(options) {
+handlebars.registerHelper('ifAny', function() {
 	var argLength = arguments.length - 2,
 		options = arguments[argLength + 1],
 		success = true;
-
+	
 	for (var i = 0; i < argLength; i += 1) {
 		if (!arguments[i]) {
 			success = false;
@@ -374,6 +374,7 @@ handlebars.registerHelper('eachRoot', function(options) {
 	if (!sections) return '';
 
 	l = sections.length;
+
 	for (i = 0; i < l; i += 1) {
 		buffer += options.fn(sections[i].data);
 	}

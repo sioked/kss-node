@@ -319,7 +319,7 @@ jsonModifiers = function(modifiers) {
  */
 handlebars.registerHelper('ifAny', function() {
 	var argLength = arguments.length - 2,
-		options = arguments[argLength + 1],
+		options = arguments[arguments.length - 1],
 		success = true;
 	
 	for (var i = 0; i < argLength; i += 1) {
@@ -410,18 +410,16 @@ handlebars.registerHelper('whenDepth', function(depth, options) {
  * Similar to the {#eachSection} helper, however will loop over each modifier
  * @param  {Object} section Supply a section object to loop over it's modifiers. Defaults to the current section.
  */
-handlebars.registerHelper('eachModifier', function(section) {
+handlebars.registerHelper('eachModifier', function(options) {
 	var modifiers, i, l, buffer = '';
-
-	// Default to current modifiers, but allow supplying a custom section
-	if (section.data) modifiers = section.data.modifiers;
+	
 	modifiers = modifiers || this.modifiers || false;
 
 	if (!modifiers) return {};
 
 	l = modifiers.length;
 	for (i = 0; i < l; i++) {
-		buffer += arguments[arguments.length-1](modifiers[i].data || '');
+		buffer += options.fn(modifiers[i].data || '');
 	}
 	return buffer;
 });

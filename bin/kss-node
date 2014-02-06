@@ -113,7 +113,11 @@ try {
 
 wrench.copyDirSyncRecursive(
 	options.templateDirectory + '/public',
-	options.destinationDirectory + '/public'
+	options.destinationDirectory + '/public',
+	{
+		preserveFiles: false,
+		forceDelete: true
+	}
 );
 
 // Generate the static HTML pages in the next tick, i.e. after the other functions have

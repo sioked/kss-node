@@ -238,7 +238,6 @@ generateStylesheet = function(argv) {
 // Used by generateStylesheet to minify and then
 // save its final buffer to a single CSS file.
 saveStylesheet = function(buffer) {
-	buffer = new CleanCss().minify(buffer.toString());
 	fs.writeFileSync(
 		options.destinationDirectory + '/public/style.css',
 		buffer, 'utf8'

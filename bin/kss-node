@@ -65,6 +65,10 @@ argv = require('optimist')
 	.alias('i', 'init')
 	.describe('i', 'Create a new styleguide template to work from')
 
+	.string('p')
+	.alias('p', 'preprocessor')
+	.describe('p', 'A specific preprocessor command to use for compiling to css')
+
 	.argv;
 
 
@@ -379,7 +383,11 @@ handlebars.registerHelper('eachRoot', function(options) {
 	l = sections.length;
 
 	for (i = 0; i < l; i += 1) {
-		buffer += options.fn(sections[i].data);
+		data = sections[i].data
+		isCurrentRoot = data.reference === this.rootNumber;
+		data.isCurrentRoot = isCurrentRoot;
+		buffer += options.fn(data);
+		delete data.isCurrentRoot;
 	}
 
 	return buffer;
@@ -447,6 +455,15 @@ handlebars.registerHelper('modifierMarkup', function(modifier) {
 		new kss.KssModifier(modifier).markup()
 	);
 });
+
+/**
+ * Output the string in all uppercase (useful for headers/links)
+ * @param {String} the string to upper case
+ */
+handlebars.registerHelper('toUpper', function(str) {
+	return str.toUpperCase();
+});
+
 
 /**
  * Quickly avoid escaping strings

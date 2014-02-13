@@ -21,13 +21,17 @@
 <body><div id="kss-wrapper">
   <div id="kss-nav">
     <header id="kss-header">
-      <hgroup><h1>kss-node Styleguide</h1></hgroup>
+      <hgroup><h1>Style Guide</h1></hgroup>
     </header>
     <aside>
       <nav><ul>
-        <li><a href="index.html">0.0: Overview</a></li>
+        <li><a href="index.html">Overview</a></li>
         {{#eachRoot}}
-          <li><a href="section-{{reference}}.html">{{reference}}: {{header}}</a></li>
+          {{#if isCurrentReference}}
+            <li class="active"><a href="section-{{reference}}.html">{{reference}}: {{header}}</a></li>
+          {{else}}
+            <li><a href="section-{{reference}}.html">{{reference}}: {{header}}</a></li>
+          {{/if}}
         {{/eachRoot}}
       </ul></nav>
     </aside>
@@ -48,10 +52,10 @@
         }}
         {{#eachSection rootNumber}}
           {{#whenDepth 1}}
-            <h1 class="kss-title"><span class="kss-ref">{{ reference }}</span> - {{ header }}</h1>
+            <h1 class="kss-title"><span class="kss-ref">{{ reference }}</span></h1>
           {{else}}
            <section class="kss-depth-{{ refDepth }}">
-            <h1 class="kss-title"><span class="kss-ref">{{ reference }}</span> - {{ header }}</h1>
+            <h1 class="kss-title"><span class="kss-ref">{{ reference }}</span></h1>
           {{/whenDepth}}
             {{#ifAny markup modifiers}}
                 <div class="kss-box">{{html description}}</div>
@@ -74,7 +78,9 @@
                 {{/eachModifier}}
                 </table>
                 <div class="kss-markup">
-                  <pre class="prettyprint lang-html">{{markup}}</pre>
+                  <iframe>
+                    <pre class="prettyprint lang-html">{{markup}}</pre>
+                  </iframe>
                 </div>
             {{else}}
                 {{#if description}}
@@ -119,12 +125,5 @@
     });
   </script>
 
-  {{! This won't be included in the demo page }}
-  {{#if argv.xdemo}}
-    <script type="text/javascript">
-    var _gaq = _gaq || []; _gaq.push(['_setAccount', 'UA-12249588-4']); _gaq.push(['_trackPageview']);
-    (function() { var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true; ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js'; var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s); })();
-    </script>
-  {{/if}}
 </div></body>
 </html>
